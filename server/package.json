@@ -1,0 +1,11 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "server.go",
+  "author": "Adeola",
+  "license": "MIT",
+  "scripts": {
+    "dev": "CompileDaemon --build='go build -o myapp main.go' --command=./myapp"
+  },
+  "description": "go weather server"
+}
