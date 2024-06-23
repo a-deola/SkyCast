@@ -1,13 +1,7 @@
-import { useState } from "react";
-
 import "./App.css";
 
 function App() {
-  return (
-    <div>
-      <h1>App</h1>
-    </div>
-  );
+  return <div className="border">App</div>;
 }
 
 export default App;
