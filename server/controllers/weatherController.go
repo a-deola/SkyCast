@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/a-deola/SkyCast/initializers"
 	"github.com/a-deola/SkyCast/models"
@@ -18,35 +17,47 @@ type input struct {
 	Lon float64
 }
 type output struct {
-	Coord struct {
-		Lon float64
-		Lat float64
+	List []struct {
+		Dt   int
+		Main struct {
+			Temp       float64
+			Feels_Like float64
+			Temp_Min   float64
+			Temp_Max   float64
+			Pressure   int
+			Humidity   int
+		}
+		Weather []struct {
+			ID          int
+			Main        string
+			Description string
+			Icon        string
+		}
+		Clouds struct {
+			All int
+		}
+
+		Visibility int
+		Wind       struct {
+			Speed float64
+			Deg   int
+		}
+		Rain struct {
+			ThreeHour float64 `json:"3h"`
+		}
+		Dt_txt string
 	}
-	Weather []struct {
-		Main        string
-		Description string
-		Icon        string
+	City struct {
+		Name  string
+		Coord struct {
+			Lon float64
+			Lat float64
+		}
+		Country  string
+		Timezone int
+		Sunrise  int
+		Sunset   int
 	}
-	Main struct {
-		Temp       float64
-		Feels_Like float64
-		Temp_Min   float64
-		Temp_Max   float64
-		Pressure   int
-		Humidity   int
-	}
-	Visibility int
-	Wind       struct {
-		Speed float64
-	}
-	Rain struct {
-		OneHour float64 `json:"1h"`
-	}
-	Sys struct {
-		Country string
-	}
-	Timezone int
-	Name     string
 }
 
 func WeatherCreate(c *fiber.Ctx) error {
@@ -56,17 +67,20 @@ func WeatherCreate(c *fiber.Ctx) error {
 	}
 
 	var weatherData models.Weather
-	result := initializers.DB.Model(&models.Weather{}).Where("Lat = ? AND Lon = ?", req.Lat, req.Lon).First(&weatherData)
+	result := initializers.DB.Model(&models.Weather{}).Where("lat = ? AND lon = ?", req.Lat, req.Lon).
+		First(&weatherData)
 
-	if result.Error == nil && time.Since(weatherData.UpdatedAt) < 30*time.Minute {
-		fmt.Println("Checking cache data .......")
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{"found": weatherData, "message": "Returning cached data"})
+	if result.Error == nil {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"weather": weatherData,
+			"message": "Returning cached data"})
 	} else {
 		fmt.Println("No cache data found .......")
 	}
 
 	apiKey := os.Getenv("WEATHER_API_KEY")
-	url := fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&appid=%s&units=metric", req.Lat, req.Lon, apiKey)
+	url := fmt.Sprintf("https://api.openweathermap.org/data/2.5/forecast?lat=%f&lon=%f&appid=%s&units=metric&cnt=21",
+		req.Lat, req.Lon, apiKey)
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -83,14 +97,47 @@ func WeatherCreate(c *fiber.Ctx) error {
 	if err := json.Unmarshal(body, &weather); err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Failed to parse response")
 	}
-	weatherData = models.Weather{Lon: weather.Coord.Lon, Lat: weather.Coord.Lat, Condition: weather.Weather[0].Main, Description: weather.Weather[0].Description, Icon: weather.Weather[0].Icon, Temperature: weather.Main.Temp, Feels_Like: weather.Main.Feels_Like, Temp_Min: weather.Main.Temp_Min, Temp_Max: weather.Main.Temp_Max, Pressure: weather.Main.Pressure, Humidity: weather.Main.Humidity, Visibility: weather.Visibility, WindSpeed: weather.Wind.Speed, Rain: weather.Rain.OneHour, Country: weather.Sys.Country, Timezone: weather.Timezone, City: weather.Name}
 
-	result = initializers.DB.Where("lat=? AND lon= ?", req.Lat, req.Lon).Save(&weatherData)
+	weatherData = models.Weather{
+		Lon:      weather.City.Coord.Lon,
+		Lat:      weather.City.Coord.Lat,
+		Country:  weather.City.Country,
+		Timezone: weather.City.Timezone,
+		CityName: weather.City.Name,
+		Sunrise:  weather.City.Sunrise,
+		Sunset:   weather.City.Sunset}
+
+	for _, w := range weather.List {
+		condition := models.WeatherCondition{
+			WeatherID:        w.Weather[0].ID,
+			Date:             w.Dt,
+			Temp:             w.Main.Temp,
+			FeelsLike:        w.Main.Feels_Like,
+			TempMin:          w.Main.Temp_Min,
+			TempMax:          w.Main.Temp_Max,
+			Pressure:         w.Main.Pressure,
+			Humidity:         w.Main.Humidity,
+			CurrentCondition: w.Weather[0].Main,
+			Description:      w.Weather[0].Description,
+			Icon:             w.Weather[0].Icon,
+			Clouds:           w.Clouds.All,
+			Visibility:       w.Visibility,
+			WindSpeed:        w.Wind.Speed,
+			WindDeg:          w.Wind.Deg,
+			Rain:             w.Rain.ThreeHour,
+			DtTxt:            w.Dt_txt,
+		}
+		weatherData.Conditions = append(weatherData.Conditions, condition)
+	}
+
+	result = initializers.DB.Where("Lat=? AND Lon= ?", req.Lat, req.Lon).
+		Create(&weatherData)
 	if result.Error != nil {
 		c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": result.Error})
 		return result.Error
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"weather": weather, "message": "Weather data saved successfully!"})
+
 }
 
 func WeatherGet(c *fiber.Ctx) error {
