@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/a-deola/SkyCast/initializers"
 	"github.com/a-deola/SkyCast/models"
@@ -67,10 +68,10 @@ func WeatherCreate(c *fiber.Ctx) error {
 	}
 
 	var weatherData models.Weather
-	result := initializers.DB.Model(&models.Weather{}).Where("lat = ? AND lon = ?", req.Lat, req.Lon).
+	result := initializers.DB.Model(&models.Weather{}).Preload("Conditions").Where("Lat = ? AND Lon = ?", req.Lat, req.Lon).
 		First(&weatherData)
 
-	if result.Error == nil {
+	if result.Error == nil && (time.Since(weatherData.UpdatedAt).Hours()) < (3*time.Hour).Hours() {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"weather": weatherData,
 			"message": "Returning cached data"})
@@ -98,18 +99,16 @@ func WeatherCreate(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString("Failed to parse response")
 	}
 
-	weatherData = models.Weather{
-		Lon:      weather.City.Coord.Lon,
-		Lat:      weather.City.Coord.Lat,
-		Country:  weather.City.Country,
-		Timezone: weather.City.Timezone,
-		CityName: weather.City.Name,
-		Sunrise:  weather.City.Sunrise,
-		Sunset:   weather.City.Sunset}
+	weatherData.Lon = req.Lon
+	weatherData.Lat = req.Lat
+	weatherData.Country = weather.City.Country
+	weatherData.Timezone = weather.City.Timezone
+	weatherData.Name = weather.City.Name
+	weatherData.Sunrise = weather.City.Sunrise
+	weatherData.Sunset = weather.City.Sunset
 
 	for _, w := range weather.List {
 		condition := models.WeatherCondition{
-			WeatherID:        w.Weather[0].ID,
 			Date:             w.Dt,
 			Temp:             w.Main.Temp,
 			FeelsLike:        w.Main.Feels_Like,
@@ -131,12 +130,13 @@ func WeatherCreate(c *fiber.Ctx) error {
 	}
 
 	result = initializers.DB.Where("Lat=? AND Lon= ?", req.Lat, req.Lon).
-		Create(&weatherData)
+		Save(&weatherData)
 	if result.Error != nil {
 		c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": result.Error})
 		return result.Error
 	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"weather": weather, "message": "Weather data saved successfully!"})
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"weather": weatherData, "message": "Weather data saved successfully!"})
 
 }
 
