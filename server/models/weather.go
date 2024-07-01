@@ -27,12 +27,12 @@ type WeatherCondition struct {
 
 type Weather struct {
 	gorm.Model
-	CityName   string
-	Lon        float64
-	Lat        float64
+	Name       string
+	Lon        float64 `gorm:"type:decimal(10,7)"`
+	Lat        float64 `gorm:"type:decimal(10,7)"`
 	Country    string
 	Timezone   int
 	Sunrise    int
 	Sunset     int
-	Conditions []WeatherCondition
+	Conditions []WeatherCondition `json:"Conditions"`
 }

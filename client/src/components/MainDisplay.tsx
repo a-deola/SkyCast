@@ -1,19 +1,36 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import Info from "./Info";
+
+import CurrentWeatherDisplay from "./CurrentWeatherDisplay";
 
 export default function MainDisplay() {
   const [lat, setLat] = useState(null as number | null);
   const [lon, setLon] = useState(null as number | null);
-  const [city, setCity] = useState({
+  const [weather, setWeather] = useState({
     Name: "",
     Country: "",
-    Coord: {
-      Lat: 0,
-      Lon: 0,
-    },
     Timezone: 0,
     Sunrise: 0,
     Sunset: 0,
+    Conditions: [
+      {
+        CurrentCondition: "",
+        Description: "",
+        DtTxt: "",
+        FeelsLike: 0,
+        Humidity: 0,
+        Icon: "",
+        Pressure: 0,
+        Rain: 0,
+        Temp: 0,
+        TempMax: 0,
+        TempMin: 0,
+        Visibility: 0,
+        WindDeg: 0,
+        WindSpeed: 0,
+      },
+    ],
   });
 
   function locationCallback(position: GeolocationPosition) {
@@ -58,7 +75,7 @@ export default function MainDisplay() {
           lon: lon,
         })
         .then((response) => {
-          setCity(response.data.weather.City);
+          setWeather(response.data.weather);
           console.log(response.data);
         })
         .catch((error) => {
@@ -68,17 +85,28 @@ export default function MainDisplay() {
   }, [lat, lon]);
 
   return (
-    <div className="border p-5">
-      <h1>Current Weather</h1>
-      <h2>City: {city.Name}</h2>
-      <h2>Country: {city.Country}</h2>
-      <p>Timezone: {city.Timezone}</p>
-      <p>Latitude: {city.Coord.Lat}</p>
-      <p>Longitude: {city.Coord.Lon}</p>
-      {/* <img
-        src={`http://openweathermap.org/img/wn/${weather.Weather[0].Icon}.png`}
-        alt="Weather Icon"
-      /> */}
+    <div className="">
+      <section className="flex flex-col md:flex-row">
+        <Info
+          name={weather.Name}
+          country={weather.Country}
+          timezone={weather.Timezone}
+        />
+        <CurrentWeatherDisplay
+          temp={weather.Conditions[0].Temp}
+          feelsLike={weather.Conditions[0].FeelsLike}
+          tempMin={weather.Conditions[0].TempMin}
+          tempMax={weather.Conditions[0].TempMax}
+          sunrise={weather.Sunrise}
+          sunset={weather.Sunset}
+          description={weather.Conditions[0].Description}
+          humidity={weather.Conditions[0].Humidity}
+          windSpeed={weather.Conditions[0].WindSpeed}
+          pressure={weather.Conditions[0].WindSpeed}
+          visibility={weather.Conditions[0].Visibility}
+          icon={weather.Conditions[0].Icon}
+        />
+      </section>
     </div>
   );
 }
