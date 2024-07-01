@@ -4,7 +4,7 @@ import MainDisplay from "./components/MainDisplay";
 function App() {
   return (
     <div>
-      <div className="grid place-items-center min-h-screen">
+      <div className="grid min-h-screen p-5">
         <MainDisplay />
       </div>
     </div>
