@@ -80,7 +80,7 @@ func WeatherCreate(c *fiber.Ctx) error {
 	}
 
 	apiKey := os.Getenv("WEATHER_API_KEY")
-	url := fmt.Sprintf("https://api.openweathermap.org/data/2.5/forecast?lat=%f&lon=%f&appid=%s&units=metric&cnt=21",
+	url := fmt.Sprintf("https://api.openweathermap.org/data/2.5/forecast?lat=%f&lon=%f&appid=%s&units=metric&cnt=40",
 		req.Lat, req.Lon, apiKey)
 
 	resp, err := http.Get(url)
