@@ -1,3 +1,5 @@
+import daisyui from 'daisyui';
+
 /** @type {import('tailwindcss').Config} */
 export default {
    content: [
@@ -5,8 +7,15 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      boxShadow:{
+        'outer':'10px 10px 50px rgba(204, 197, 185, 0.5)',
+        'inner':'inset 10px 10px 50px rgba(204, 197, 185, 0.5)',
+      }
+    },
   },
-  plugins: [],
+  plugins: [
+  ],
+  darkMode:'class'
 }
 
