@@ -6,6 +6,7 @@ import CurrentWeatherDisplay from "./components/CurrentWeatherDisplay";
 import Loader from "./components/Loader";
 import DailyWeatherDisplay from "./components/DailyWeatherDisplay";
 import ThemeSwitcher from "./components/ThemeSwitcher";
+import WeatherSearch from "./components/WeatherSearch";
 
 interface WeatherCondition {
   DtTxt: string;
@@ -92,6 +93,22 @@ function App() {
     }
   }
 
+  function getClosetWeatherTime(data: WeatherCondition[]) {
+    const now = new Date();
+    let closest = data[0];
+    let closestTime = Math.abs(
+      new Date(data[0].DtTxt).getTime() - now.getTime()
+    );
+    data.forEach((weather) => {
+      const time = Math.abs(new Date(weather.DtTxt).getTime() - now.getTime());
+      if (time < closestTime) {
+        closestTime = time;
+        closest = weather;
+      }
+    });
+    return closest;
+  }
+
   useEffect(() => {
     getCoordinates();
   }, []);
@@ -111,10 +128,11 @@ function App() {
           ) {
             setWeather(response.data.weather);
             setLoading(false);
-            const weatherTime = String(
-              response.data.weather.Conditions[0].DtTxt.split(" ")[1]
-            );
+            const weatherTime = getClosetWeatherTime(
+              response.data.weather.Conditions
+            ).DtTxt.split(" ")[1];
             console.log(weatherTime);
+
             const filteredDailyWeather =
               response.data.weather.Conditions.filter(
                 (condition: WeatherCondition) => {
@@ -128,7 +146,6 @@ function App() {
                 dtTxt: condition.DtTxt,
                 description: condition.Description,
               }));
-            console.log(filteredDailyWeather);
             setWeatherDaily(filteredDailyWeather);
           } else {
             console.log("Unexpected data structure:", response.data);
@@ -141,18 +158,21 @@ function App() {
   }, [lat, lon]);
 
   return (
-    <div className={`${dark && "dark"}`}>
+    <main className={`${dark && "dark"}`}>
       {loading ? (
         <Loader />
       ) : (
         <div className="relative h-screen w-screen overflow-x-hidden bg-[#FFFCF2] dark:bg-[#252422] dark:text-white px-5">
-          <div className="w-[500px] h-[500px] bg-[#EB5E28] rounded-full absolute left-[80%] -top-60"></div>
-          {/* <div className="w-[500px] h-[500px] bg-[#252422] rounded-full absolute right-[80%] -bottom-60"></div>
-          <div className="w-40 h-40 bg-[#CCC5B9] rounded-full absolute left-[30%] top-[40%]"></div> */}
-          <div className="flex z-10 my-3">
-            <ThemeSwitcher dark={dark} toggleDark={toggleDark} />
-          </div>
-          <section className="flex flex-col md:flex-row">
+          <div className="w-[500px] h-[500px] bg-[#EB5E28] rounded-full absolute left-[80%] -top-60 md:inline hidden animate-bounce"></div>
+          <section className="flex gap-10 items-center m-4 w-full">
+            <div className=" w-1/6 md:w-1/5 flex justify-center">
+              <ThemeSwitcher dark={dark} toggleDark={toggleDark} />
+            </div>
+            <div className="w-5/6 md:w-4/5">
+              <WeatherSearch />
+            </div>
+          </section>
+          <section className="flex flex-col lg:flex-row">
             <Info
               name={weather.Name}
               country={weather.Country}
@@ -178,7 +198,7 @@ function App() {
           </section>
         </div>
       )}
-    </div>
+    </main>
   );
 }
 
