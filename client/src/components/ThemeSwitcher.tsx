@@ -13,7 +13,7 @@ export default function ThemeSwitcher(props: ThemeSwitcherProps) {
         <BsSun className="text-2xl" onClick={props.toggleDark} />
       ) : (
         <BsMoon
-          className="text-2xl text-[#252422]"
+          className="text-2xl text-[#EB5E28]"
           onClick={props.toggleDark}
         />
       )}

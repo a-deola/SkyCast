@@ -11,6 +11,7 @@ import (
 	"github.com/a-deola/SkyCast/initializers"
 	"github.com/a-deola/SkyCast/models"
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 type input struct {
@@ -61,14 +62,11 @@ type output struct {
 	}
 }
 
-func WeatherCreate(c *fiber.Ctx) error {
-	var req input
-	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString("Invalid request body")
-	}
+var weatherData models.Weather
+var result *gorm.DB
 
-	var weatherData models.Weather
-	result := initializers.DB.Model(&models.Weather{}).Preload("Conditions").Where("Lat = ? AND Lon = ?", req.Lat, req.Lon).
+func validateCache(c *fiber.Ctx, req *input) error {
+	result = initializers.DB.Model(&models.Weather{}).Preload("Conditions").Where("Lat = ? AND Lon = ?", req.Lat, req.Lon).
 		First(&weatherData)
 
 	if result.Error == nil && (time.Since(weatherData.UpdatedAt).Hours()) < (3*time.Hour).Hours() {
@@ -77,6 +75,20 @@ func WeatherCreate(c *fiber.Ctx) error {
 			"message": "Returning cached data"})
 	} else {
 		fmt.Println("No cache data found .......")
+	}
+
+	return nil
+
+}
+
+func WeatherCreate(c *fiber.Ctx) error {
+	var req input
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid request body")
+	}
+
+	if err := validateCache(c, &req); err != nil {
+		return err
 	}
 
 	apiKey := os.Getenv("WEATHER_API_KEY")
@@ -106,6 +118,7 @@ func WeatherCreate(c *fiber.Ctx) error {
 	weatherData.Name = weather.City.Name
 	weatherData.Sunrise = weather.City.Sunrise
 	weatherData.Sunset = weather.City.Sunset
+	weatherData.Conditions = []models.WeatherCondition{}
 
 	for _, w := range weather.List {
 		condition := models.WeatherCondition{
