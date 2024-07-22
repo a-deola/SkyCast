@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+
 interface InfoProp {
   name: string;
   country: string;
@@ -27,15 +29,22 @@ export const monthsOfYear = [
 ];
 
 const now = new Date();
-export const currentTime = () => {
-  const currentHour = now.getHours().toString().padStart(2, "0");
-  const currentMinute = now.getMinutes().toString().padStart(2, "0");
-  const displayTime = `${currentHour} : ${currentMinute}`;
-  return displayTime;
+const formatTime = (date: Date) => {
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  return `${hours} : ${minutes}`;
 };
 
 export default function Info(prop: InfoProp) {
   const dayOfWeek = daysOfWeek[now.getDay()];
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+    return () => clearInterval(intervalId);
+  }, []);
 
   function convertTimezone(timezoneOffset: number) {
     const hours = timezoneOffset / 3600;
@@ -45,17 +54,19 @@ export default function Info(prop: InfoProp) {
   }
 
   return (
-    <div className="p-5 text-center md:w-1/3 grid place-content-center gap-5">
+    <aside className="p-5 text-center w-full lg:w-1/3 grid place-content-center gap-5">
       <h2 className="text-lg">
         {prop.name == "Orogbum" ? "Port Harcourt" : prop.name} - {prop.country}
       </h2>
       <div>
-        <h2 className="text-6xl font-bold text-[#EB5E28]">{currentTime()}</h2>
+        <h2 className="text-6xl font-bold text-[#EB5E28]">
+          {formatTime(time)}
+        </h2>
         <p>{convertTimezone(prop.timezone)}</p>
       </div>
       <p>
         {dayOfWeek}, {now.getDate()} {monthsOfYear[now.getMonth()]}
       </p>
-    </div>
+    </aside>
   );
 }
