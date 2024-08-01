@@ -116,7 +116,7 @@ function App() {
   useEffect(() => {
     if (lat !== null || lon !== null) {
       axios
-        .post("http://localhost:3000/weather", {
+        .post("https://skycast-1t0f.onrender.com/api/weather", {
           lat: lat,
           lon: lon,
         })
