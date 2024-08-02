@@ -41,7 +41,7 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     yarn install --frozen-lockfile
 
 # Copy the rest of the source files into the image.
-COPY . .
+COPY . ./
 # Run the build script.
 RUN yarn run build
 
