@@ -18,8 +18,8 @@ jobs:
         with:
           node-version: 18
 
-      - name: Navigate to client
-        run: cd client
+      # - name: Navigate to client
+      #   run: cd client
 
       - name: Install dependencies
         run: yarn install
