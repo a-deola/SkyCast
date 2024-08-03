@@ -22,10 +22,10 @@ jobs:
       #   run: cd client
 
       - name: Install dependencies
-        run: yarn install
+        run: cd client && yarn install
 
       - name: Build project
-        run: yarn build
+        run: cd client && yarn build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
