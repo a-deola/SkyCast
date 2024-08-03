@@ -22,15 +22,16 @@ jobs:
       #   run: cd client
 
       - name: Install dependencies
-        run: cd client && yarn install
+        run: yarn install
+        working-directory: client
 
       - name: Build project
-        run: cd client && yarn build
+        run: yarn build
+        working-directory: client
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          destination_dir: client/
           publish_branch: gh-pages
-          publish_dir: ./dist
+          publish_dir: ./client/dist
