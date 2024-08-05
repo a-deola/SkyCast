@@ -25,7 +25,7 @@ const DailyWeatherDisplay: React.FC<MainDisplayProps> = ({ dailyWeather }) => {
               <h2 className="text-2xl font-semibold">{weather.temp} &deg;C</h2>
               <img
                 className="w-16"
-                src={`http://openweathermap.org/img/wn/${weather.icon}@2x.png`}
+                src={`https://openweathermap.org/img/wn/${weather.icon}@2x.png`}
                 alt="Weather Icon"
               />
             </div>
