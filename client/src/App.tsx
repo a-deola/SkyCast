@@ -131,7 +131,6 @@ function App() {
             const weatherTime = getClosetWeatherTime(
               response.data.weather.Conditions
             ).DtTxt.split(" ")[1];
-            console.log(weatherTime);
 
             const filteredDailyWeather =
               response.data.weather.Conditions.filter(
