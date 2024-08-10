@@ -7,7 +7,7 @@ import Loader from "./components/Loader";
 import DailyWeatherDisplay from "./components/DailyWeatherDisplay";
 import ThemeSwitcher from "./components/ThemeSwitcher";
 import WeatherSearch from "./components/WeatherSearch";
-import { getClosetWeatherTime, getDailyWeather } from "./utils";
+import { getClosetWeatherTime, getDailyWeather, getCoordinates } from "./utils";
 
 export interface WeatherCondition {
   DtTxt: string;
@@ -32,8 +32,8 @@ function App() {
   const [lat, setLat] = useState(null as number | null);
   const [lon, setLon] = useState(null as number | null);
   const [loading, setLoading] = useState(true);
-  const [weatherDaily, setWeatherDaily] = useState<DailyWeather[]>([]);
 
+  const [weatherDaily, setWeatherDaily] = useState<DailyWeather[]>([]);
   const [weather, setWeather] = useState({
     Name: "",
     Country: "",
@@ -64,38 +64,13 @@ function App() {
     setDark(!dark);
   };
 
-  function locationCallback(position: GeolocationPosition) {
-    const lat = position.coords.latitude;
-    const lon = position.coords.longitude;
-    setLat(lat);
-    setLon(lon);
-  }
-
-  function getError(error: GeolocationPositionError) {
-    console.log(`Error: ${error.message}`);
-  }
-
-  const options = {
-    enableHighAccuracy: true,
-    timeout: 5000,
-    maximumAge: 0,
-  };
-
-  function getCoordinates() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        locationCallback,
-        getError,
-        options
-      );
-      console.log("Geolocation is supported!");
-    } else {
-      console.log("Geolocation is not supported by this browser.");
-    }
-  }
-
   useEffect(() => {
-    getCoordinates();
+    getCoordinates()
+      .then(({ lat, lon }) => {
+        setLat(lat);
+        setLon(lon);
+      })
+      .catch((error) => console.error("Failed to get coordinates:", error));
   }, []);
 
   useEffect(() => {

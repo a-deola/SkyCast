@@ -32,3 +32,28 @@ export const getDailyWeather = (
 
   return filteredDailyWeather;
 };
+
+const options = {
+  enableHighAccuracy: true,
+  timeout: 5000,
+  maximumAge: 0,
+};
+
+export function getCoordinates() {
+  return new Promise<{ lat: number; lon: number }>((resolve, reject) => {
+    if (!navigator.geolocation) {
+      return reject(new Error("Geolocation is not supported by this browser."));
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude: lat, longitude: lon } = position.coords;
+        resolve({ lat, lon });
+      },
+      (error) => {
+        reject(error);
+        console.log(`Error: ${error.message}`);
+      },
+      options
+    );
+  });
+}
