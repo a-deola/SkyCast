@@ -7,8 +7,9 @@ import Loader from "./components/Loader";
 import DailyWeatherDisplay from "./components/DailyWeatherDisplay";
 import ThemeSwitcher from "./components/ThemeSwitcher";
 import WeatherSearch from "./components/WeatherSearch";
+import { getClosetWeatherTime, getDailyWeather } from "./utils";
 
-interface WeatherCondition {
+export interface WeatherCondition {
   DtTxt: string;
   Temp: number;
   TempMax: number;
@@ -93,22 +94,6 @@ function App() {
     }
   }
 
-  function getClosetWeatherTime(data: WeatherCondition[]) {
-    const now = new Date();
-    let closest = data[0];
-    let closestTime = Math.abs(
-      new Date(data[0].DtTxt).getTime() - now.getTime()
-    );
-    data.forEach((weather) => {
-      const time = Math.abs(new Date(weather.DtTxt).getTime() - now.getTime());
-      if (time < closestTime) {
-        closestTime = time;
-        closest = weather;
-      }
-    });
-    return closest;
-  }
-
   useEffect(() => {
     getCoordinates();
   }, []);
@@ -128,24 +113,12 @@ function App() {
           ) {
             setWeather(response.data.weather);
             setLoading(false);
-            const weatherTime = getClosetWeatherTime(
-              response.data.weather.Conditions
-            ).DtTxt.split(" ")[1];
-
-            const filteredDailyWeather =
-              response.data.weather.Conditions.filter(
-                (condition: WeatherCondition) => {
-                  return condition.DtTxt.includes(weatherTime);
-                }
-              ).map((condition: WeatherCondition) => ({
-                temp: condition.Temp,
-                tempMax: condition.TempMax,
-                tempMin: condition.TempMin,
-                icon: condition.Icon,
-                dtTxt: condition.DtTxt,
-                description: condition.Description,
-              }));
-            setWeatherDaily(filteredDailyWeather);
+            setWeatherDaily(
+              getDailyWeather(
+                response.data.weather.Conditions,
+                getClosetWeatherTime
+              )
+            );
           } else {
             console.log("Unexpected data structure:", response.data);
           }
