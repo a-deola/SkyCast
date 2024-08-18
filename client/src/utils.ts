@@ -51,7 +51,6 @@ export function getCoordinates() {
       },
       (error) => {
         reject(error);
-        console.log(`Error: ${error.message}`);
       },
       options
     );
