@@ -19,8 +19,7 @@ func main() {
 	}))
 
 	app.Post("/weather", controllers.WeatherCreate)
-
-	app.Get("/weather", controllers.WeatherGet)
+	app.Get("/bycity", controllers.GetWeatherByCity)
 
 	app.Listen(":3000")
 }
