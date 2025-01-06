@@ -37,10 +37,10 @@ export const ErrorHandler: React.FC<ErrorHandlerProps> = ({ error }) => {
     }
   } else {
     return (
-      <div>
+      <ErrorContainer>
         <h2>Unexpected Error</h2>
         <p>{(error as Error).message}</p>
-      </div>
+      </ErrorContainer>
     );
   }
 };

@@ -6,7 +6,7 @@ interface ConditionDisplayProps {
   pressure: number;
   visibility: number;
 }
-
+// [#EB5E28]
 function ConditionDisplay(props: ConditionDisplayProps) {
   return (
     <div className=" md:grid grid-cols-2 md:col-span-2 gap-5 hidden w-full">

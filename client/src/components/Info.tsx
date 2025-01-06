@@ -62,11 +62,13 @@ export default function Info(prop: InfoProp) {
         <h2 className="text-6xl font-bold text-[#EB5E28]">
           {formatTime(time)}
         </h2>
-        <p>{convertTimezone(prop.timezone)}</p>
+        <p className="mt-2 text-[#CCC5B9]">
+          Timezone : {convertTimezone(prop.timezone)}
+        </p>
+        <p>
+          {dayOfWeek}, {now.getDate()} {monthsOfYear[now.getMonth()]}
+        </p>
       </div>
-      <p>
-        {dayOfWeek}, {now.getDate()} {monthsOfYear[now.getMonth()]}
-      </p>
     </aside>
   );
 }

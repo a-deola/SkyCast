@@ -1,6 +1,6 @@
-import { WeatherCondition } from "./App";
+import { WeatherCondition } from "../App";
 
-export function getClosetWeatherTime(data: WeatherCondition[]) {
+export function getClosestWeatherTime(data: WeatherCondition[]) {
   const now = new Date();
   let closest = data[0];
   let closestTime = Math.abs(new Date(data[0].DtTxt).getTime() - now.getTime());
@@ -16,9 +16,9 @@ export function getClosetWeatherTime(data: WeatherCondition[]) {
 
 export const getDailyWeather = (
   conditions: WeatherCondition[],
-  getClosetWeatherTime: (data: WeatherCondition[]) => WeatherCondition
+  getClosestWeatherTime: (data: WeatherCondition[]) => WeatherCondition
 ) => {
-  const weatherTime = getClosetWeatherTime(conditions).DtTxt.split(" ")[1];
+  const weatherTime = getClosestWeatherTime(conditions).DtTxt.split(" ")[1];
   const filteredDailyWeather = conditions
     .filter((condition) => condition.DtTxt.includes(weatherTime))
     .map((condition) => ({
@@ -35,7 +35,7 @@ export const getDailyWeather = (
 
 const options = {
   enableHighAccuracy: true,
-  timeout: 5000,
+  timeout: 10000,
   maximumAge: 0,
 };
 
@@ -50,7 +50,31 @@ export function getCoordinates() {
         resolve({ lat, lon });
       },
       (error) => {
-        reject(error);
+        switch (error.code) {
+          case 1:
+            reject(
+              new Error(
+                "Location access was denied. Please enable it in your browser or device settings."
+              )
+            );
+            break;
+          case 2:
+            reject(
+              new Error(
+                "Location information is unavailable. Please check your device's location services."
+              )
+            );
+            break;
+          case 3:
+            reject(new Error("Geolocation request timed out."));
+            break;
+          default:
+            reject(
+              new Error(
+                "An unknown error occurred while retrieving your location."
+              )
+            );
+        }
       },
       options
     );

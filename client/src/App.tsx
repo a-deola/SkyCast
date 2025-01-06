@@ -6,10 +6,16 @@ import Loader from "./components/Loader";
 import DailyWeatherDisplay from "./components/DailyWeatherDisplay";
 import ThemeSwitcher from "./components/ThemeSwitcher";
 import WeatherSearch from "./components/WeatherSearch";
-import { getClosetWeatherTime, getDailyWeather, getCoordinates } from "./utils";
+import {
+  getClosestWeatherTime,
+  getDailyWeather,
+  getCoordinates,
+} from "./lib/utils";
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
-import { fetchWeather } from "./api";
+import { fetchWeather } from "./lib/api";
+import { useNetworkStatus } from "./hooks/useNetworkStatus";
 import { ErrorHandler } from "./components/ErrorHandler";
+import ErrorContainer from "./components/ErrorContainer";
 
 export interface WeatherCondition {
   DtTxt: string;
@@ -85,55 +91,100 @@ function App() {
       },
     ],
   });
-
+  const [geolocationError, setGeolocationError] = useState<
+    string | Error | null
+  >(null);
   const toggleDark = () => {
     setDark(!dark);
   };
+  const {
+    data,
+    isLoading: isWeatherLoading,
+    error,
+    isError,
+  }: UseQueryResult<Weather, Error> = useQuery({
+    queryKey: ["Weather", lat, lon],
+    queryFn: () => fetchWeather(lat!, lon!),
+    enabled: !!lat && !!lon,
+  });
+  const isLoading = loadingCoordinates || isWeatherLoading;
+  const isOffline = useNetworkStatus();
 
   useEffect(() => {
     getCoordinates()
       .then(({ lat, lon }) => {
         setLat(lat);
         setLon(lon);
-        setLoadingCoordinates(false);
       })
       .catch((error) => {
-        setLoadingCoordinates(false);
-        return <ErrorHandler error={error} />;
-      });
+        if (error.message === "Geolocation request timed out.") {
+          setGeolocationError(
+            "The geolocation request timed out. Please try again."
+          );
+        }
+      })
+      .finally(() => setLoadingCoordinates(false));
   }, []);
-
-  const { data, isLoading, error, isError }: UseQueryResult<Weather, Error> =
-    useQuery({
-      queryKey: ["Weather", lat, lon],
-      queryFn: () => fetchWeather(lat!, lon!),
-      enabled: !loadingCoordinates && lat !== null && lon !== null,
-    });
 
   useEffect(() => {
     if (data && data.Conditions) {
       setWeather(data);
-      setWeatherDaily(getDailyWeather(data.Conditions, getClosetWeatherTime));
+      setWeatherDaily(getDailyWeather(data.Conditions, getClosestWeatherTime));
     } else if (data) {
       console.log("Unexpected data structure:", data);
     }
   }, [data]);
 
+  const handleRetry = () => {
+    setLoadingCoordinates(true);
+    setGeolocationError(null);
+    getCoordinates()
+      .then(({ lat, lon }) => {
+        setLat(lat);
+        setLon(lon);
+      })
+      .catch((error) => {
+        setGeolocationError(error.message);
+      })
+      .finally(() => setLoadingCoordinates(false));
+  };
+
   if (isLoading) return <Loader />;
-  if (isError && error) {
-    return <ErrorHandler error={error} />;
+  if (!weather) {
+    return <ErrorHandler error={new Error("Failed to fetch weather data.")} />;
+  }
+  if (isError || geolocationError) {
+    return (
+      <ErrorHandler
+        error={
+          geolocationError instanceof Error
+            ? geolocationError
+            : new Error(geolocationError || error!.message)
+        }
+      />
+    );
+  }
+  if (isOffline) {
+    return (
+      <ErrorContainer>
+        You are offline. Please check your connection and try again
+        <button onClick={() => handleRetry}>
+          <span>Retry</span>
+        </button>
+      </ErrorContainer>
+    );
   }
 
   return (
     <main className={`${dark && "dark"}`}>
       <div className="relative h-screen w-screen overflow-x-hidden bg-[#FFFCF2] dark:bg-[#252422] dark:text-white px-5">
         <div className="w-[500px] h-[500px] bg-[#EB5E28] rounded-full absolute left-[80%] -top-60 md:inline hidden animate-bounce"></div>
-        <section className="flex gap-10 items-center m-4 w-full">
+        <section className="flex gap-5 items-center pt-5 w-full">
           <div className=" w-1/6 md:w-1/5 flex justify-center">
             <ThemeSwitcher dark={dark} toggleDark={toggleDark} />
           </div>
-          <div className="w-5/6 md:w-4/5">
-            <WeatherSearch />
+          <div className="w-5/6 md:w-4/5 items-center">
+            <WeatherSearch setWeather={setWeather} />
           </div>
         </section>
         <section className="flex flex-col lg:flex-row">
