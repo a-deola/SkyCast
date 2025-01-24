@@ -6,28 +6,28 @@ interface ConditionDisplayProps {
   pressure: number;
   visibility: number;
 }
-// [#EB5E28]
+
 function ConditionDisplay(props: ConditionDisplayProps) {
   return (
     <div className=" md:grid grid-cols-2 md:col-span-2 gap-5 hidden w-full">
       <div className="p-5 flex flex-col items-center">
-        <BsWater className="text-3xl font-medium" />
+        <BsWater className="text-3xl font-medium text-muted" />
         <p className="font-medium ">{props.humidity} %</p>
         <p>Humidity</p>
       </div>
-      <div className="p-5 flex flex-col items-center">
-        <BsWind className="text-3xl font-medium" />
+      <div className="p-5 flex flex-col items-center whitespace-nowrap">
+        <BsWind className="text-3xl font-medium text-muted" />
         <p className="font-medium ">{props.windSpeed} km/h</p>
         <p>Wind Speed</p>
       </div>
       <div className="p-5 flex flex-col items-center">
-        <BsSpeedometer2 className="text-3xl font-medium" />
+        <BsSpeedometer2 className="text-3xl font-medium text-muted" />
         <p className="font-medium ">{props.pressure} hPa</p>
         <p>Pressure</p>
       </div>
       <div className="p-5 flex flex-col items-center">
-        <BsEye className="text-3xl font-medium" />
-        <p className="font-medium ">{props.visibility} km</p>
+        <BsEye className="text-3xl font-medium text-muted" />
+        <p className="font-medium whitespace-nowrap">{props.visibility} km</p>
         <p>Visibility</p>
       </div>
     </div>

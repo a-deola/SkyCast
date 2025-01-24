@@ -62,7 +62,7 @@ export default function Info(prop: InfoProp) {
         <h2 className="text-6xl font-bold text-[#EB5E28]">
           {formatTime(time)}
         </h2>
-        <p className="mt-2 text-[#CCC5B9]">
+        <p className="mt-2 text-muted font-semibold">
           Timezone : {convertTimezone(prop.timezone)}
         </p>
         <p>

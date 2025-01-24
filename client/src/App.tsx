@@ -72,24 +72,7 @@ function App() {
     Timezone: 0,
     Sunrise: 0,
     Sunset: 0,
-    Conditions: [
-      {
-        CurrentCondition: "",
-        Description: "",
-        DtTxt: "",
-        FeelsLike: 0,
-        Humidity: 0,
-        Icon: "",
-        Pressure: 0,
-        Rain: 0,
-        Temp: 0,
-        TempMax: 0,
-        TempMin: 0,
-        Visibility: 0,
-        WindDeg: 0,
-        WindSpeed: 0,
-      },
-    ],
+    Conditions: [],
   });
   const [geolocationError, setGeolocationError] = useState<
     string | Error | null
@@ -132,6 +115,7 @@ function App() {
       setWeatherDaily(getDailyWeather(data.Conditions, getClosestWeatherTime));
     } else if (data) {
       console.log("Unexpected data structure:", data);
+      setWeatherDaily([]);
     }
   }, [data]);
 
@@ -168,7 +152,7 @@ function App() {
     return (
       <ErrorContainer>
         You are offline. Please check your connection and try again
-        <button onClick={() => handleRetry}>
+        <button onClick={handleRetry}>
           <span>Retry</span>
         </button>
       </ErrorContainer>
@@ -178,12 +162,10 @@ function App() {
   return (
     <main className={`${dark && "dark"}`}>
       <div className="relative h-screen w-screen overflow-x-hidden bg-[#FFFCF2] dark:bg-[#252422] dark:text-white px-5">
-        <div className="w-[500px] h-[500px] bg-[#EB5E28] rounded-full absolute left-[80%] -top-60 md:inline hidden animate-bounce"></div>
-        <section className="flex gap-5 items-center pt-5 w-full">
-          <div className=" w-1/6 md:w-1/5 flex justify-center">
-            <ThemeSwitcher dark={dark} toggleDark={toggleDark} />
-          </div>
-          <div className="w-5/6 md:w-4/5 items-center">
+        <div className="w-[500px] h-[500px] bg-[#EB5E28] rounded-full absolute left-[85%] -top-60 md:inline hidden animate-bounce"></div>
+        <section className="flex items-center  space-x-4 w-full p-4">
+          <ThemeSwitcher dark={dark} toggleDark={toggleDark} />
+          <div className="w-full flex justify-center">
             <WeatherSearch setWeather={setWeather} />
           </div>
         </section>
@@ -193,20 +175,24 @@ function App() {
             country={weather.Country}
             timezone={weather.Timezone}
           />
-          <CurrentWeatherDisplay
-            temp={weather.Conditions[0].Temp}
-            feelsLike={weather.Conditions[0].FeelsLike}
-            tempMin={weather.Conditions[0].TempMin}
-            tempMax={weather.Conditions[0].TempMax}
-            sunrise={weather.Sunrise}
-            sunset={weather.Sunset}
-            description={weather.Conditions[0].Description}
-            humidity={weather.Conditions[0].Humidity}
-            windSpeed={weather.Conditions[0].WindSpeed}
-            pressure={weather.Conditions[0].WindSpeed}
-            visibility={weather.Conditions[0].Visibility}
-            icon={weather.Conditions[0].Icon}
-          />
+          {weather.Conditions.length > 0 ? (
+            <CurrentWeatherDisplay
+              temp={weather.Conditions[0].Temp}
+              feelsLike={weather.Conditions[0].FeelsLike}
+              tempMin={weather.Conditions[0].TempMin}
+              tempMax={weather.Conditions[0].TempMax}
+              sunrise={weather.Sunrise}
+              sunset={weather.Sunset}
+              description={weather.Conditions[0].Description}
+              humidity={weather.Conditions[0].Humidity}
+              windSpeed={weather.Conditions[0].WindSpeed}
+              pressure={weather.Conditions[0].Pressure}
+              visibility={weather.Conditions[0].Visibility}
+              icon={weather.Conditions[0].Icon}
+            />
+          ) : (
+            <p>No weather data available.</p>
+          )}
         </section>
         <section>
           <DailyWeatherDisplay dailyWeather={weatherDaily} />

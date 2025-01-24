@@ -15,11 +15,11 @@ const DailyWeatherDisplay: React.FC<MainDisplayProps> = ({ dailyWeather }) => {
   return (
     <div className="text-center">
       <h3 className="text-2xl font-bold">5 Day Forecast</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 p-3 place-items-center gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 p-3 place-items-center gap-4">
         {dailyWeather.map((weather, index) => (
           <div
             key={index}
-            className="w-48 h-48 rounded-full bg-white/30 dark:bg-[#252422]/30 backdrop-blur-sm shadow-inner items-center flex flex-col p-2 justify-center"
+            className="w-48 h-48 rounded-md bg-white/30 dark:bg-[#252422]/30 backdrop-blur-sm shadow-inner items-center flex flex-col p-2 justify-center"
           >
             <div className="flex items-center">
               <h2 className="text-2xl font-semibold">{weather.temp} &deg;C</h2>

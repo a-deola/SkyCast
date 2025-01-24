@@ -19,7 +19,7 @@ export const fetchWeather = async (lat: number, lon: number) => {
 export const searchWeather = async (city: string) => {
   try {
     const response = await axios.get(
-      "https://skycast-1t0f.onrender.com/weather",
+      "https://skycast-1t0f.onrender.com/bycity",
       {
         params: { city },
       }

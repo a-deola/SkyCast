@@ -24,13 +24,6 @@ function CurrentTempDisplay(props: TempProp) {
           <h1 className=" text-lg md:text-4xl font-bold md:font-medium">
             {props.temp} &deg;C
           </h1>
-          <p className="text-xs">
-            Feels like :{" "}
-            <span className="font-bold md:text-lg text-[#CCC5B9]">
-              {" "}
-              {props.feelsLike} &deg;C{" "}
-            </span>
-          </p>
         </div>
         <div className="flex text-xs gap-1 my-4 md:my-2 md:text-sm md:gap-5 mb-5">
           <p>
