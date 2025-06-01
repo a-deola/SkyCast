@@ -177,20 +177,25 @@ function App() {
           />
           {weather.Conditions.length > 0 ? (
             <>
-              <CurrentWeatherDisplay
-                temp={weather.Conditions[0].Temp}
-                feelsLike={weather.Conditions[0].FeelsLike}
-                tempMin={weather.Conditions[0].TempMin}
-                tempMax={weather.Conditions[0].TempMax}
-                sunrise={weather.Sunrise}
-                sunset={weather.Sunset}
-                description={weather.Conditions[0].Description}
-                humidity={weather.Conditions[0].Humidity}
-                windSpeed={weather.Conditions[0].WindSpeed}
-                pressure={weather.Conditions[0].Pressure}
-                visibility={weather.Conditions[0].Visibility}
-                icon={weather.Conditions[0].Icon}
-              />
+              {(() => {
+                const current = weather.Conditions[0];
+                return (
+                  <CurrentWeatherDisplay
+                    temp={current.Temp}
+                    feelsLike={current.FeelsLike}
+                    tempMin={current.TempMin}
+                    tempMax={current.TempMax}
+                    sunrise={weather.Sunrise}
+                    sunset={weather.Sunset}
+                    description={current.Description}
+                    humidity={current.Humidity}
+                    windSpeed={current.WindSpeed}
+                    pressure={current.Pressure}
+                    visibility={current.Visibility}
+                    icon={current.Icon}
+                  />
+                );
+              })()}
               <section>
                 <DailyWeatherDisplay dailyWeather={weatherDaily} />
               </section>
