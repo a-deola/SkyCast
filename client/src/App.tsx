@@ -176,26 +176,30 @@ function App() {
             timezone={weather.Timezone}
           />
           {weather.Conditions.length > 0 ? (
-            <CurrentWeatherDisplay
-              temp={weather.Conditions[0].Temp}
-              feelsLike={weather.Conditions[0].FeelsLike}
-              tempMin={weather.Conditions[0].TempMin}
-              tempMax={weather.Conditions[0].TempMax}
-              sunrise={weather.Sunrise}
-              sunset={weather.Sunset}
-              description={weather.Conditions[0].Description}
-              humidity={weather.Conditions[0].Humidity}
-              windSpeed={weather.Conditions[0].WindSpeed}
-              pressure={weather.Conditions[0].Pressure}
-              visibility={weather.Conditions[0].Visibility}
-              icon={weather.Conditions[0].Icon}
-            />
+            <>
+              <CurrentWeatherDisplay
+                temp={weather.Conditions[0].Temp}
+                feelsLike={weather.Conditions[0].FeelsLike}
+                tempMin={weather.Conditions[0].TempMin}
+                tempMax={weather.Conditions[0].TempMax}
+                sunrise={weather.Sunrise}
+                sunset={weather.Sunset}
+                description={weather.Conditions[0].Description}
+                humidity={weather.Conditions[0].Humidity}
+                windSpeed={weather.Conditions[0].WindSpeed}
+                pressure={weather.Conditions[0].Pressure}
+                visibility={weather.Conditions[0].Visibility}
+                icon={weather.Conditions[0].Icon}
+              />
+              <section>
+                <DailyWeatherDisplay dailyWeather={weatherDaily} />
+              </section>
+            </>
           ) : (
-            <p>No weather data available.</p>
+            <ErrorContainer>
+              <p>No weather data available.</p>
+            </ErrorContainer>
           )}
-        </section>
-        <section>
-          <DailyWeatherDisplay dailyWeather={weatherDaily} />
         </section>
       </div>
     </main>
