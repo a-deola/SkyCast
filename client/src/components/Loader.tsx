@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { RingLoader } from "react-spinners";
 
 const loadingMessages = [
-  "Getting your weather data, please wait 🌦️ ...",
+  "Finding your location 🛰️ ...",
   "Contacting the clouds 📡 ...",
-  "Locating you and fetching forecast 🛰️ ...",
-  "Gathering weather insight ☁️ ...",
-  "Checking the skies above you 🌍 ...",
+  "Checking the skies ☁️ ...",
+  "Getting your weather data, please wait 🌦️ ...",
+  "Fetching the latest updates 🌍 ...",
+  "Putting a bow on it 🎀 ...",
 ];
 
 export default function Loader() {
@@ -17,9 +18,9 @@ export default function Loader() {
       setCurrentMessageIndex(
         (prevIndex) => (prevIndex + 1) % loadingMessages.length
       );
-    }, 2000); // Change message every 3 seconds
+    }, 5000);
 
-    return () => clearInterval(interval); // Cleanup on unmount
+    return () => clearInterval(interval);
   }, []);
 
   return (

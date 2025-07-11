@@ -105,7 +105,9 @@ function App() {
       setWeather(result.weather);
       setGeolocationError(null);
     } catch (err) {
-      setGeolocationError("Could not fetch weather for the city");
+      setGeolocationError(
+        `Oops! Couldn't find the weather for "${city}" 😔 Try a different location?`
+      );
     }
   };
 
