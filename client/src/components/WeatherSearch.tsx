@@ -1,20 +1,25 @@
 import { useState } from "react";
-import { searchWeather } from "../lib/api";
 import Loader from "./Loader";
 
-function WeatherSearch({ setWeather }: { setWeather: (data: any) => void }) {
+interface WeatherSearchProps {
+  onSearch: (city: string) => void;
+}
+
+const WeatherSearch: React.FC<WeatherSearchProps> = ({ onSearch }) => {
   const [city, setCity] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const setSearchedWeather = (searchedWeather: void) => {
-    setWeather(searchedWeather);
-    setLoading(false);
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (city.trim()) {
+      onSearch(city.trim());
+    }
   };
 
   return loading ? (
     <Loader />
   ) : (
-    <div className="w-full max-w-2xl relative">
+    <form className="w-full max-w-2xl relative" onSubmit={handleSubmit}>
       <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -37,21 +42,12 @@ function WeatherSearch({ setWeather }: { setWeather: (data: any) => void }) {
       />
       <button
         className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-primary text-white px-4 py-2 rounded-r-3xl"
-        onClick={async () => {
-          setLoading(true);
-          try {
-            const weatherData = await searchWeather(city);
-            setSearchedWeather(weatherData);
-          } catch (error) {
-            console.error("Error fetching weather:", error);
-            setLoading(false);
-          }
-        }}
+        type="submit"
       >
         Search
       </button>
-    </div>
+    </form>
   );
-}
+};
 
 export default WeatherSearch;

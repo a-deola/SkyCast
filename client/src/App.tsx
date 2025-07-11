@@ -12,6 +12,7 @@ import { useNetworkStatus } from "./hooks/useNetworkStatus";
 import { ErrorHandler } from "./components/ErrorHandler";
 import ErrorContainer from "./components/ErrorContainer";
 import RetryButton from "./components/RetryButton";
+import { searchWeather } from "./lib/api";
 import {
   getClosestWeatherTime,
   getDailyWeather,
@@ -95,6 +96,18 @@ function App() {
   });
   const isLoading = loadingCoordinates || isWeatherLoading;
   const isOffline = useNetworkStatus();
+
+  const handleSearch = async (city: string) => {
+    try {
+      const result = await searchWeather(city); // from /bycity
+      setLat(result.lat);
+      setLon(result.lon);
+      setWeather(result.weather);
+      setGeolocationError(null);
+    } catch (err) {
+      setGeolocationError("Could not fetch weather for the city");
+    }
+  };
 
   useEffect(() => {
     console.log("Getting coordinates...");
@@ -194,7 +207,7 @@ function App() {
         <section className="flex items-center  space-x-4 w-full p-4">
           <ThemeSwitcher dark={dark} toggleDark={toggleDark} />
           <div className="w-full flex justify-center">
-            <WeatherSearch setWeather={setWeather} />
+            <WeatherSearch onSearch={handleSearch} />
           </div>
         </section>
         <section className="flex flex-col lg:flex-row">

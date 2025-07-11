@@ -24,7 +24,14 @@ export const searchWeather = async (city: string) => {
         params: { city },
       }
     );
-    return response.data;
+
+    // Extract and return just the weather info
+    return {
+      city: response.data.city,
+      lat: response.data.latitude,
+      lon: response.data.longitude,
+      weather: response.data.weather,
+    };
   } catch (error) {
     console.error("Error fetching weather data:", error);
     throw error;
