@@ -7,7 +7,6 @@ interface WeatherSearchProps {
 
 const WeatherSearch: React.FC<WeatherSearchProps> = ({ onSearch }) => {
   const [city, setCity] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -16,9 +15,7 @@ const WeatherSearch: React.FC<WeatherSearchProps> = ({ onSearch }) => {
     }
   };
 
-  return loading ? (
-    <Loader />
-  ) : (
+  return (
     <form className="w-full max-w-2xl relative" onSubmit={handleSubmit}>
       <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary">
         <svg

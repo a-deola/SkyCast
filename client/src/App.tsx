@@ -99,7 +99,7 @@ function App() {
 
   const handleSearch = async (city: string) => {
     try {
-      const result = await searchWeather(city); // from /bycity
+      const result = await searchWeather(city);
       setLat(result.lat);
       setLon(result.lon);
       setWeather(result.weather);
