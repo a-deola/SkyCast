@@ -39,6 +39,9 @@ const options = {
   maximumAge: 0,
 };
 export function handleGeolocationError(error: any): string {
+  if (!error || typeof error.code !== "number") {
+    return "Location access was denied or blocked. Please check your browser settings and ensure the site is allowed to access location.";
+  }
   const geoError = error as GeolocationPositionError;
 
   switch (geoError.code) {

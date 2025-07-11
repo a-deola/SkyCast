@@ -164,13 +164,13 @@ function App() {
   }
   {
     geolocationError && (
-      <ErrorContainer>
-        <p>{geolocationError}</p>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-          If you're using Chrome, click the <strong>🔒 padlock</strong> in the
-          address bar → <strong>Site settings</strong> →{" "}
-          <strong>Location</strong> → <strong>Allow</strong> → then reload.
-        </p>
+      <ErrorContainer
+        header={geolocationError}
+        description="Unable to retrieve your location."
+        message=" If you're using Chrome, click the 🔒 padlock in the
+          address bar → Site settings →
+      Location → Allow → then reload."
+      >
         <RetryButton onRetry={handleRetry} disabled={loadingCoordinates} />
       </ErrorContainer>
     );
@@ -179,10 +179,10 @@ function App() {
   if (isOffline) {
     return (
       <div className="flex justify-center">
-        <ErrorContainer>
-          <p>You are offline, Please check your connection and try again</p>
-          <RetryButton onRetry={handleRetry} disabled={loadingCoordinates} />
-        </ErrorContainer>
+        <ErrorContainer
+          header="Offline"
+          description="You are currently offline. Please check your internet connection."
+        />
       </div>
     );
   }
@@ -226,9 +226,10 @@ function App() {
               })()}
             </>
           ) : (
-            <ErrorContainer>
-              <p>No weather data available.</p>
-            </ErrorContainer>
+            <ErrorContainer
+              header=" Unavailable"
+              description="No weather data available ."
+            />
           )}
         </section>
         <section>

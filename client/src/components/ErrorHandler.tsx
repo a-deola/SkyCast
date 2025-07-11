@@ -1,6 +1,5 @@
 import axios from "axios";
 import ErrorContainer from "./ErrorContainer";
-import RetryButton from "./RetryButton";
 
 interface ErrorHandlerProps {
   error: Error;
@@ -10,39 +9,33 @@ export const ErrorHandler: React.FC<ErrorHandlerProps> = ({ error }) => {
   if (axios.isAxiosError(error)) {
     if (error.response) {
       return (
-        <ErrorContainer>
-          <h2>Server Error</h2>
-          <p>Status: {error.response.status}</p>
-          <p>
-            {error.response.data?.message ||
-              "Something went wrong on the server."}
-          </p>
-        </ErrorContainer>
+        <ErrorContainer
+          header="Server Error"
+          message={
+            error.response.data?.message ||
+            "Something went wrong on the server."
+          }
+        />
       );
     } else if (error.request) {
       return (
-        <ErrorContainer>
-          <h2>Network Error</h2>
-          <p>{error.message}</p>
-          <p>Please check your internet connection and try again.</p>
-        </ErrorContainer>
+        <ErrorContainer
+          header="Network Error"
+          message={
+            error.message ||
+            "Network request failed. Please check your connection."
+          }
+        />
       );
     } else {
       return (
-        <ErrorContainer>
-          <h2>Request Error</h2>
-          <p>{error.message}</p>
-          <p>An error occurred while making the request.</p>
-        </ErrorContainer>
+        <ErrorContainer
+          header="Unexpected Request Error"
+          message={error.message}
+        />
       );
     }
   } else {
-    return (
-      <ErrorContainer>
-        <h2>Unexpected Error</h2>
-        <p>{(error as Error).message}</p>
-        <RetryButton onRetry={() => window.location.reload()} />
-      </ErrorContainer>
-    );
+    return <ErrorContainer header="Location Error" message={error.message} />;
   }
 };
