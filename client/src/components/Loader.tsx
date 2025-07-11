@@ -17,7 +17,7 @@ export default function Loader() {
       setCurrentMessageIndex(
         (prevIndex) => (prevIndex + 1) % loadingMessages.length
       );
-    }, 3000); // Change message every 3 seconds
+    }, 2000); // Change message every 3 seconds
 
     return () => clearInterval(interval); // Cleanup on unmount
   }, []);
