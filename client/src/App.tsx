@@ -6,16 +6,17 @@ import Loader from "./components/Loader";
 import DailyWeatherDisplay from "./components/DailyWeatherDisplay";
 import ThemeSwitcher from "./components/ThemeSwitcher";
 import WeatherSearch from "./components/WeatherSearch";
-import {
-  getClosestWeatherTime,
-  getDailyWeather,
-  getCoordinates,
-} from "./lib/utils";
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { fetchWeather } from "./lib/api";
 import { useNetworkStatus } from "./hooks/useNetworkStatus";
 import { ErrorHandler } from "./components/ErrorHandler";
 import ErrorContainer from "./components/ErrorContainer";
+import RetryButton from "./components/RetryButton";
+import {
+  getClosestWeatherTime,
+  getDailyWeather,
+  getCoordinates,
+} from "./lib/utils";
 
 export interface WeatherCondition {
   DtTxt: string;
@@ -66,6 +67,9 @@ function App() {
   const [lon, setLon] = useState(null as number | null);
   const [loadingCoordinates, setLoadingCoordinates] = useState(true);
   const [weatherDaily, setWeatherDaily] = useState<DailyWeather[]>([]);
+  const [geolocationError, setGeolocationError] = useState<
+    string | Error | null
+  >(null);
   const [weather, setWeather] = useState<Weather>({
     Name: "",
     Country: "",
@@ -74,9 +78,6 @@ function App() {
     Sunset: 0,
     Conditions: [],
   });
-  const [geolocationError, setGeolocationError] = useState<
-    string | Error | null
-  >(null);
   const toggleDark = () => {
     setDark(!dark);
   };
@@ -85,29 +86,42 @@ function App() {
     isLoading: isWeatherLoading,
     error,
     isError,
+    refetch,
   }: UseQueryResult<Weather, Error> = useQuery({
     queryKey: ["Weather", lat, lon],
     queryFn: () => fetchWeather(lat!, lon!),
-    enabled: !!lat && !!lon,
+    enabled: false,
   });
   const isLoading = loadingCoordinates || isWeatherLoading;
   const isOffline = useNetworkStatus();
 
   useEffect(() => {
+    console.log("Getting coordinates...");
     getCoordinates()
       .then(({ lat, lon }) => {
+        console.log("Got coordinates:", lat, lon);
         setLat(lat);
         setLon(lon);
       })
       .catch((error) => {
-        if (error.message === "Geolocation request timed out.") {
-          setGeolocationError(
-            "The geolocation request timed out. Please try again."
-          );
-        }
+        console.log("Error getting coordinates:", error);
+
+        setGeolocationError(
+          "The geolocation request timed out. Please try again."
+        );
       })
-      .finally(() => setLoadingCoordinates(false));
+      .finally(() => {
+        console.log("Finished getting coordinates");
+        setLoadingCoordinates(false);
+      });
   }, []);
+
+  useEffect(() => {
+    if (lat !== null && lon !== null) {
+      console.log("Coordinates available, refetching...");
+      refetch();
+    }
+  }, [lat, lon, refetch]);
 
   useEffect(() => {
     if (data && data.Conditions) {
@@ -119,18 +133,19 @@ function App() {
     }
   }, [data]);
 
-  const handleRetry = () => {
+  const handleRetry = async () => {
+    if (isOffline) return;
     setLoadingCoordinates(true);
     setGeolocationError(null);
-    getCoordinates()
-      .then(({ lat, lon }) => {
-        setLat(lat);
-        setLon(lon);
-      })
-      .catch((error) => {
-        setGeolocationError(error.message);
-      })
-      .finally(() => setLoadingCoordinates(false));
+    try {
+      const { lat, lon } = await getCoordinates();
+      setLat(lat);
+      setLon(lon);
+    } catch (error) {
+      setGeolocationError((error as Error).message || "Failed to get location");
+    } finally {
+      setLoadingCoordinates(false);
+    }
   };
 
   if (isLoading) return <Loader />;
@@ -150,12 +165,12 @@ function App() {
   }
   if (isOffline) {
     return (
-      <ErrorContainer>
-        You are offline. Please check your connection and try again
-        <button onClick={handleRetry}>
-          <span>Retry</span>
-        </button>
-      </ErrorContainer>
+      <div className="flex justify-center">
+        <ErrorContainer>
+          <p>You are offline, Please check your connection and try again</p>
+          <RetryButton onRetry={handleRetry} disabled={loadingCoordinates} />
+        </ErrorContainer>
+      </div>
     );
   }
 

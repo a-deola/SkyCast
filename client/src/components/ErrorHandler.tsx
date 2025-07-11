@@ -1,5 +1,6 @@
 import axios from "axios";
 import ErrorContainer from "./ErrorContainer";
+import RetryButton from "./RetryButton";
 
 interface ErrorHandlerProps {
   error: Error;
@@ -40,6 +41,7 @@ export const ErrorHandler: React.FC<ErrorHandlerProps> = ({ error }) => {
       <ErrorContainer>
         <h2>Unexpected Error</h2>
         <p>{(error as Error).message}</p>
+        <RetryButton onRetry={() => window.location.reload()} />
       </ErrorContainer>
     );
   }
