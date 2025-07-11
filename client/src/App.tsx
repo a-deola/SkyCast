@@ -16,6 +16,7 @@ import {
   getClosestWeatherTime,
   getDailyWeather,
   getCoordinates,
+  handleGeolocationError,
 } from "./lib/utils";
 
 export interface WeatherCondition {
@@ -106,9 +107,7 @@ function App() {
       .catch((error) => {
         console.log("Error getting coordinates:", error);
 
-        setGeolocationError(
-          "The geolocation request timed out. Please try again."
-        );
+        setGeolocationError(new Error(handleGeolocationError(error as Error)));
       })
       .finally(() => {
         console.log("Finished getting coordinates");
@@ -142,7 +141,7 @@ function App() {
       setLat(lat);
       setLon(lon);
     } catch (error) {
-      setGeolocationError((error as Error).message || "Failed to get location");
+      setGeolocationError(new Error(handleGeolocationError(error as Error)));
     } finally {
       setLoadingCoordinates(false);
     }
@@ -163,6 +162,20 @@ function App() {
       />
     );
   }
+  {
+    geolocationError && (
+      <ErrorContainer>
+        <p>{geolocationError}</p>
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+          If you're using Chrome, click the <strong>🔒 padlock</strong> in the
+          address bar → <strong>Site settings</strong> →{" "}
+          <strong>Location</strong> → <strong>Allow</strong> → then reload.
+        </p>
+        <RetryButton onRetry={handleRetry} disabled={loadingCoordinates} />
+      </ErrorContainer>
+    );
+  }
+
   if (isOffline) {
     return (
       <div className="flex justify-center">
@@ -211,15 +224,15 @@ function App() {
                   />
                 );
               })()}
-              <section>
-                <DailyWeatherDisplay dailyWeather={weatherDaily} />
-              </section>
             </>
           ) : (
             <ErrorContainer>
               <p>No weather data available.</p>
             </ErrorContainer>
           )}
+        </section>
+        <section>
+          <DailyWeatherDisplay dailyWeather={weatherDaily.slice(1)} />
         </section>
       </div>
     </main>

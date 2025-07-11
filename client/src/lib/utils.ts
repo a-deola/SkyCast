@@ -38,6 +38,20 @@ const options = {
   timeout: 20000,
   maximumAge: 0,
 };
+export function handleGeolocationError(error: any): string {
+  const geoError = error as GeolocationPositionError;
+
+  switch (geoError.code) {
+    case 1:
+      return "Location access was denied. Please click the 🔒 icon in the address bar → Site settings → Location → Allow.";
+    case 2:
+      return "Location is unavailable. Please check your device settings.";
+    case 3:
+      return "Location request timed out. Please try again.";
+    default:
+      return "An unknown error occurred while getting location.";
+  }
+}
 
 export function getCoordinates() {
   return new Promise<{ lat: number; lon: number }>((resolve, reject) => {

@@ -14,8 +14,8 @@ function getDateString(dt: string) {
 const DailyWeatherDisplay: React.FC<MainDisplayProps> = ({ dailyWeather }) => {
   return (
     <div className="text-center">
-      <h3 className="text-2xl font-bold">5 Day Forecast</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 p-3 place-items-center gap-4">
+      <h3 className="text-2xl font-bold">4 Day Forecast</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 p-3 place-items-center gap-4">
         {dailyWeather.map((weather, index) => (
           <div
             key={index}
