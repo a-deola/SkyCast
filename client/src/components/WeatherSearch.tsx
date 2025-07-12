@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Loader from "./Loader";
 
 interface WeatherSearchProps {
   onSearch: (city: string) => void;
@@ -38,7 +37,7 @@ const WeatherSearch: React.FC<WeatherSearchProps> = ({ onSearch }) => {
         onChange={(e) => setCity(e.target.value)}
       />
       <button
-        className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-primary text-white px-4 py-2 rounded-r-3xl"
+        className="absolute right-0 top-1/2 font-semibold transform -translate-y-1/2 bg-primary text-white px-4 py-2 rounded-r-3xl hover:bg-transparent hover:text-primary transition-colors duration-300 hover:border-x hover:border-l hover:border-primary"
         type="submit"
       >
         Search
