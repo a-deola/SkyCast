@@ -67,7 +67,7 @@ export default function Info({ name, country, timezone }: InfoProps) {
           {formatTime(time)}
         </h2>
         <p className="mt-2 text-muted font-semibold">
-          Timezone: {convertTimezone(timezone)}
+          Timezone : {""} {convertTimezone(timezone)}
         </p>
         <p>
           {dayOfWeek}, {day} {month}

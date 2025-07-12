@@ -11,7 +11,7 @@ export const fetchWeather = async (lat: number, lon: number) => {
     );
     return response.data.weather;
   } catch (error) {
-    console.error("Error fetching weather data:", error);
+
     throw error;
   }
 };
@@ -33,7 +33,6 @@ export const searchWeather = async (city: string) => {
       weather: response.data.weather,
     };
   } catch (error) {
-    console.error("Error fetching weather data:", error);
     throw error;
   }
 };

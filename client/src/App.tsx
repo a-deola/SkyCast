@@ -112,27 +112,21 @@ function App() {
   };
 
   useEffect(() => {
-    console.log("Getting coordinates...");
     getCoordinates()
       .then(({ lat, lon }) => {
-        console.log("Got coordinates:", lat, lon);
         setLat(lat);
         setLon(lon);
       })
       .catch((error) => {
-        console.log("Error getting coordinates:", error);
-
         setGeolocationError(new Error(handleGeolocationError(error as Error)));
       })
       .finally(() => {
-        console.log("Finished getting coordinates");
         setLoadingCoordinates(false);
       });
   }, []);
 
   useEffect(() => {
     if (lat !== null && lon !== null) {
-      console.log("Coordinates available, refetching...");
       refetch();
     }
   }, [lat, lon, refetch]);
@@ -142,7 +136,6 @@ function App() {
       setWeather(data);
       setWeatherDaily(getDailyWeather(data.Conditions, getClosestWeatherTime));
     } else if (data) {
-      console.log("Unexpected data structure:", data);
       setWeatherDaily([]);
     }
   }, [data]);
